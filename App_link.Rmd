@@ -1,0 +1,12 @@
+---
+title: "Project Website for SMU Work"
+author: "Patricia Attah"
+date: "7/17/2020"
+output: html_document
+---
+
+# R Shiny Application
+## CaseStudy1
+
+
+# https://patricia-attah.shinyapps.io/CaseStudy1/

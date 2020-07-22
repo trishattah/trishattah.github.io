@@ -1,0 +1,12 @@
+---
+title: "Project Website for SMU Work"
+author: "Patricia Attah"
+date: "7/17/2020"
+output: html_document
+---
+
+# Classwork week 12
+## DS6306
+## Data Science Major
+
+Doing Data Science

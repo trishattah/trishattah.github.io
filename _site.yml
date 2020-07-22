@@ -1,0 +1,12 @@
+name: "Project-Website"
+navbar:
+    title: "Project Website"
+    left:
+        - text: "Home"
+          href: index.html
+        - text: "About Author"
+          href: about.html
+        - text: "CaseStudy1"
+          href: BeerCaseStudy.html
+        - text: "App_linkLink"
+          href: App_link.html

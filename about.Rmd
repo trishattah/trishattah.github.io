@@ -1,0 +1,13 @@
+---
+title: "About"
+author: "Patricia"
+date: "7/18/2020"
+output: html_document
+---
+
+## Lexandria Ohanian
+### About me
+I am a new data scientist and a machine learning and artificial intelligence enthusiaist
+have completed 2 significant projects and a wide range of smaller compact projects that can be found 
+on my github site. I went to school in the university of arlington and SMU respectively, with a first
+masters in Civil engineering and a second masters in data science with major in Machine learning.
