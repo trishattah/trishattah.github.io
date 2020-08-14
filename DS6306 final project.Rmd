@@ -1,0 +1,17 @@
+---
+title: "DS 6306 final project"
+author: "Patricia"
+date: "8/10/2020"
+output: html_document
+---
+
+
+
+df <- read.csv("~/Library/Mobile Documents/com~apple~CloudDocs/R-SMU/CaseStudy2_2_2_2_2_2_2/CaseStudy2-data.csv")
+
+str(df)
+```{r}
+library(ggplot2)
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+```

@@ -1,0 +1,161 @@
+---
+title: "DDSAnalytics Predictive Model DS6306"
+#author: "Patricia Attah"
+date: "8/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+#install.packages('olsrr')
+library(MASS)
+library(dplyr)
+library(e1071)
+library(class)
+library(caret)
+library(Metrics)
+library(readxl)
+
+CS <- read.csv("~/Library/Mobile Documents/com~apple~CloudDocs/R-SMU/CaseStudy2_2_2_2_2_2_2/CaseStudy2-data.csv")
+
+CS2 <- CS
+CS3 <- CS
+
+CaseStudy2CompSet_No_Salary <- read_excel("/Users/patriciaattah/Library/Mobile Documents/com~apple~CloudDocs/R-SMU/CaseStudy2_2_2_2_2_2_2/CaseStudy2CompSet No Salary.xlsx")
+
+CaseStudy2CompSet.No.Attrition <- read.csv("~/Library/Mobile Documents/com~apple~CloudDocs/R-SMU/CaseStudy2_2_2_2_2_2_2/CaseStudy2CompSet No Attrition.csv")
+```
+## DDSAnalytics
+This is brief analysis capturing the factors that affect attriction and montlhy income from the available data that is provided in the data set used for this study. 
+the data set consist of 39 variables and 890 observations, using employeee data. 
+
+### Attriction Prediction
+This is a look into the factors causing attrition. the variables TotalWorkingYears, JobInvolvement and OverTime were found to be adequate for classification, with a Sensitivity of 0.8952 and Specificity of 0.8750.    
+```{r, include=FALSE}
+CS_NA <- CaseStudy2CompSet.No.Attrition
+
+CS_NA$OverTime  <- as.numeric(CS_NA$OverTime) 
+CS2$OverTime <- as.numeric(CS2$OverTime)
+```
+
+
+```{r}
+
+splitPerc =.75
+set.seed(7)
+trainIndices = sample(1:dim(CS2)[1],round(splitPerc * dim(CS2)[1]))
+trainCS2_A = CS2[trainIndices,]
+testCS2_A = CS2[-trainIndices,]
+
+classifications = knn(trainCS2_A[,c('TotalWorkingYears','JobInvolvement','OverTime')] ,testCS2_A[,c('TotalWorkingYears','JobInvolvement' ,'OverTime')],trainCS2_A$Attrition, prob = TRUE, k = 5)
+table(testCS2_A$Attrition,classifications)
+confusionMatrix(table(testCS2_A$Attrition,classifications))
+
+classifications2 = knn(trainCS2_A[,c('TotalWorkingYears','JobInvolvement','OverTime')] ,CS_NA[,c('TotalWorkingYears','JobInvolvement' ,'OverTime')],trainCS2_A$Attrition, prob = TRUE, k = 5)
+
+CS_NA$Predict_Attrition <- classifications2
+Attrition_pred <- CS_NA %>% dplyr::select(ID,Predict_Attrition)
+```
+### Income Prediction
+This is a look into the factors for income prediction. First EDA is conducted on the data to check for correlation and confoundong factors. 
+
+### Statistical Check
+Multiple Linear regression is used so the assumptions of multiple regression is checked linearity, Constant Variance, normality and independence. looking at the box plots we can see that constant variance and linearity seems to be satisfied. Normality is satisfied by large sample size. there seems to be some correlation between total working years and job level however we see that these two variables are still very effective in the model.
+A lack of fit test was conducted on the department varaible to check if the linear model was the same as the seperate means model and it was found to be similar, hence the linear regrssion model is appropriate. as the p value was found to be 0.18 which is higher than the alpha level of 0.05
+
+```{r, warning=FALSE}
+CS2$Department <- as.factor(CS2$Department)
+boxplot(CS2$MonthlyIncome~CS2$Department, main=toupper("MonthlyIncome by Department"), font.main=3, cex.main=1.2, xlab="Department", ylab="MonthlyIncome", font.lab=3, col="darkgreen")
+
+boxplot(CS2$MonthlyIncome~CS2$JobLevel, main=toupper("MonthlyIncome by JobLevel"), font.main=3, cex.main=1.2, xlab="JobLevel", ylab="MonthlyIncome", font.lab=3, col="darkgreen")
+
+CS2$Department <- as.numeric(CS2$Department)
+CS2$JobLevel <- as.numeric(CS2$JobLevel)
+a = CS2 %>% dplyr::select(Department, JobLevel,TotalWorkingYears)
+cor(a)
+
+Reduced <- lm(MonthlyIncome ~ Department, data = CS2)
+Full <- lm(MonthlyIncome ~ 0 + as.factor(Department), data = CS2)
+anova (Reduced,Full)
+
+```
+### Residual Check
+Checking the residual plot we can see the residuals are evenly spread, the qq plot shows there is no eveidence against normality, checking the residual plot there is no point that has both high leverage and high influence so there are no outliers, the studentised residuals are also even.
+
+### RMSE
+After the analysis we found the RMSE price to be $1371.55
+
+````{r, warning=FALSE}
+
+CS_NS <- CaseStudy2CompSet_No_Salary
+CS_NS$Department <- as.factor(CS_NS$Department)
+
+
+model2 <- lm(MonthlyIncome ~ TotalWorkingYears+Department +JobLevel, data = CS3)
+rmse(CS3$MonthlyIncome, predict(model2, CS3))
+summary(model2)
+
+CS2I_pred = predict(model2, interval = 'predict', newdata = CS_NS) 
+CS_NS$Predict_Income <- CS2I_pred[,1]
+
+Predict_Income <- CS_NS %>% dplyr::select(ID,Predict_Income)
+
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(model2)
+
+```
+
+### Job Role specific Trends
+We can see that it seems sales executives have the best work life balance as they are the highest both in the better and best levels of this category.
+In the second plot we see that research scientist are the one that work most over time and sales representatives are following closely behind. 
+Once again we see sales executives as the most involved in their jobs as the they are by far the highest in this area.
+and finally Sales executives are the most satisfied with their jobs with research scientist following closely behind
+
+```{r}
+
+ggplot(CS3, aes(x=WorkLifeBalance,fill=JobRole)) +
+  geom_bar(position="dodge")
+
+
+ggplot(CS, aes(x=OverTime,fill=JobRole)) +
+  geom_bar(position="dodge")
+
+ggplot(CS, aes(x=JobInvolvement,fill=JobRole)) +
+  geom_bar(position="dodge")
+
+ggplot(CS, aes(x=JobSatisfaction,fill=JobRole)) +
+  geom_bar(position="dodge")
+
+```
+
+
+
+```{r, include=FALSE}
+#Predict_Income
+#str(CS)
+#ols_step_both_p(model2)
+#CS_NS$Department <- as.numeric(CS_NS$Department)
+#CS2 <- CS2 %>% filter(TotalWorkingYears != 40)
+#out = boxplot(CS2$NumCompaniesWorked)$out
+
+#boxplot(CS2$JobLevel)
+#boxplot(CS2$TotalWorkingYears)
+#out = boxplot(CS2$TotalWorkingYears)$out
+#which(CS2$TotalWorkingYears %in% out)
+#out
+
+#tab <- table(CS2$Department, CS2$JobLevel)
+#chisq.test(tab)
+str(CS2)
+
+#ggplot(CS2, aes(x=MonthlyIncome, y=TotalWorkingYears, color=Department)) +
+  #geom_point()+
+  #geom_smooth(method=lm, se=FALSE, fullrange=TRUE)
+
+#ggplot(CS2, aes(x=JobRole, y= YearsAtCompany, fill=JobRole)) +
+  #geom_boxplot()
+```
+
