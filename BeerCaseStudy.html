@@ -285,7 +285,7 @@ $(document).ready(function () {
   <a href="CaseStudy2.html">CaseStudy2</a>
 </li>
 <li>
-  <a href="App_link.html">App_linkLink</a>
+  <a href="App_link.html">Links</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -350,6 +350,36 @@ head(fullData)</code></pre>
 <div id="median-abv-and-ibu-per-states" class="section level1">
 <h1>Median ABV and IBU per states</h1>
 <p>We want to look at the median values for each state. In order to get median for each states, we collecte the data grouping by state and summarize them. With the data we calculated, we draw a bar charts with median ABV and IBU of all states.</p>
+<pre class="r"><code>cleanData %&gt;% dplyr::group_by(State) %&gt;% dplyr::summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n())</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 50 x 4
+##    State medianABV medianIBU count
+##    &lt;fct&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;
+##  1 &quot; AK&quot;    0.057       46      17
+##  2 &quot; AL&quot;    0.06        43       9
+##  3 &quot; AR&quot;    0.04        39       1
+##  4 &quot; AZ&quot;    0.0575      20.5    24
+##  5 &quot; CA&quot;    0.058       42     135
+##  6 &quot; CO&quot;    0.065       40     146
+##  7 &quot; CT&quot;    0.061       29       6
+##  8 &quot; DC&quot;    0.059       47.5     4
+##  9 &quot; DE&quot;    0.055       52       1
+## 10 &quot; FL&quot;    0.062       55      37
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>cleanData %&gt;% 
+  dplyr::group_by(State) %&gt;% 
+  dplyr::summarise(medianABV = median(ABV)) %&gt;% 
+  gather(key, value, -State) %&gt;% 
+  ggplot(aes(State, value, fill = key)) + geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) + ggtitle(&quot;Median ABV for each State&quot;) + theme(axis.text.x = element_text(angle=90, vjust=0.6))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>cleanData %&gt;% 
+  dplyr::group_by(State) %&gt;% 
+  dplyr::summarise(medianIBU = median(IBU)) %&gt;% 
+  gather(key, value, -State) %&gt;% 
+  ggplot(aes(State, value, fill = key)) + geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) + ggtitle(&quot;Median IBU for each State&quot;) + theme(axis.text.x = element_text(angle=90, vjust=0.6))</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
 <pre class="r"><code>medABV &lt;- cleanData %&gt;% dplyr::group_by(State) %&gt;% summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n()) %&gt;% arrange(-medianABV)</code></pre>
 <pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <pre class="r"><code>medABV &lt;- medABV %&gt;% dplyr::select(State, medianABV)
@@ -442,21 +472,21 @@ cleanData %&gt;% filter(ABV == maxABV)</code></pre>
 ## 0.02700 0.05000 0.05700 0.05991 0.06800 0.12500</code></pre>
 <pre class="r"><code># Histogram of ABV Percentage 
 cleanData  %&gt;% ggplot(aes(ABV*100)) + geom_histogram(fill=&quot;darkblue&quot;,color=&quot;black&quot;, binwidth= 0.375) + xlab(&quot;% Alcohol by Volume (%ABV)&quot;) + ggtitle(&quot;Distribution of Beer %ABV, Right-Skewed&quot;) </code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <pre class="r"><code># Box Plot
 boxplot(cleanData$ABV, col=&#39;orange&#39;,main = &#39;Alcohol by volume&#39;)</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
 <pre class="r"><code># QQ plot for normality check
 qqnorm(cleanData$ABV, pch = 1, frame = FALSE)
 qqline(cleanData$ABV, col = &quot;steelblue&quot;, lwd = 2, main = &#39;Alcohol by volume&#39;)</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-8-3.png" width="672" /> We see it’s quite right skewed from its histogram. QQ plot also showed that this is not normally distributed data as it has some curve at upper quantiles. In the box plot, we clearly see there are some outliers. such as London Balling beer we found from MAX ABV.</p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-9-3.png" width="672" /> We see it’s quite right skewed from its histogram. QQ plot also showed that this is not normally distributed data as it has some curve at upper quantiles. In the box plot, we clearly see there are some outliers. such as London Balling beer we found from MAX ABV.</p>
 </div>
 <div id="relationship-between-abv-and-ibu" class="section level1">
 <h1>Relationship between ABV and IBU</h1>
 <p>We made scatter plot between ABV and IBU to see what is the relationship, and we see that it has some positive relationship that as ABV Value goes up IBU tend to go up as well.</p>
 <pre class="r"><code># Scatter Plot for ABV vs IBU for each State
 cleanData %&gt;% ggplot(aes(x=IBU, y=ABV, color=State)) + geom_point()</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>#7 Scatter Plot for ABV vs IBU relationship
 theme_set(theme_bw())  # pre-set the bw theme.
 g &lt;- ggplot(cleanData, aes(IBU, ABV, color=&#39;red&#39;))
@@ -466,7 +496,7 @@ g + geom_point(color=&#39;blue&#39;) +
        x=&quot;IBU&quot;, 
        title=&quot;ABV vs IBU Relationship&quot;)</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
 </div>
 <div id="knn-cluster-plot-for-american-ales" class="section level1">
 <h1>KNN Cluster Plot for American Ales</h1>
@@ -494,7 +524,7 @@ ggplot() +
   geom_point(data=predAleDF,aes(ABV, IBU, color=predicted, fill=predicted), size = 5) + 
   geom_polygon(data = boundary, aes(x,y, color=predicted, fill=predicted), alpha = 0.5)+
   geom_point(aes(ABV, IBU, color=Style), data=testAle) + ggtitle(&quot;KNN Cluster Plot for American Ales&quot;) +     scale_color_manual(values = colors) + scale_fill_manual(values = colors)</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-10-1.png" width="672" /> Looking at the plot, we see the some types of Ale have high IBU and ABV even though it’s not an IPA. American black Ale is one the type, which sometimes called as Black IPA. If we set this type as IPA, we could have gotten better classfication results than before.</p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-11-1.png" width="672" /> Looking at the plot, we see the some types of Ale have high IBU and ABV even though it’s not an IPA. American black Ale is one the type, which sometimes called as Black IPA. If we set this type as IPA, we could have gotten better classfication results than before.</p>
 </div>
 <div id="knn-cluster-plot-for-ipa" class="section level1">
 <h1>KNN Cluster Plot for IPA</h1>
@@ -520,7 +550,7 @@ ggplot() +
   geom_point(data=predIpaDF, aes(ABV, IBU, color=predicted, fill=predicted), size = 5) + 
   geom_polygon(data = boundary, aes(x,y, color=predicted, fill=predicted), alpha = 0.5)+
   geom_point(aes(ABV, IBU, color=Style), data=testIPA) + ggtitle(&quot;KNN Cluster Plot&quot;) + ggtitle(&quot;KNN Cluster Plot for IPA&quot;) +     scale_color_manual(values = colors) + scale_fill_manual(values = colors)</code></pre>
-<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-11-1.png" width="672" /> We found American IPA have much broader range of IBU and ABV that they contains. With just two information, IBU and ABV, it is not enough to understand the relationship of ABV and IBU against its style. For IPA, we may need additional feature variables such as hop ratio or type of ingredients to get better classification model.</p>
+<p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-12-1.png" width="672" /> We found American IPA have much broader range of IBU and ABV that they contains. With just two information, IBU and ABV, it is not enough to understand the relationship of ABV and IBU against its style. For IPA, we may need additional feature variables such as hop ratio or type of ingredients to get better classification model.</p>
 <p>From the above chart, we found that Colarado and Orgeon have more high ABV and IBU Ales than other states. Thus we can make a question that why these states have more Ales that have high bitterness and alcohol level.</p>
 </div>
 
