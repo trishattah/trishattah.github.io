@@ -307,8 +307,8 @@ $(document).ready(function () {
 <div id="ddsanalytics" class="section level2">
 <h2>DDSAnalytics</h2>
 <p>This is brief analysis capturing the factors that affect attriction and montlhy income from the available data that is provided in the data set used for this study. the data set consist of 39 variables and 890 observations, using employeee data.</p>
-<div id="attriction-prediction" class="section level3">
-<h3>Attriction Prediction</h3>
+<div id="attrition-prediction" class="section level3">
+<h3>Attrition Prediction</h3>
 <p>This is a look into the factors causing attrition. the variables TotalWorkingYears, JobInvolvement and OverTime were found to be adequate for classification, with a Sensitivity of 0.8952 and Specificity of 0.8750.</p>
 <pre class="r"><code>splitPerc =.75
 set.seed(7)
@@ -361,12 +361,21 @@ Attrition_pred &lt;- CS_NA %&gt;% dplyr::select(ID,Predict_Attrition)</code></pr
 </div>
 <div id="statistical-check" class="section level3">
 <h3>Statistical Check</h3>
-<p>Multiple Linear regression is used so the assumptions of multiple regression is checked linearity, Constant Variance, normality and independence. looking at the box plots we can see that constant variance and linearity seems to be satisfied. Normality is satisfied by large sample size. there seems to be some correlation between total working years and job level however we see that these two variables are still very effective in the model. A lack of fit test was conducted on the department varaible to check if the linear model was the same as the seperate means model and it was found to be similar, hence the linear regrssion model is appropriate. as the p value was found to be 0.18 which is higher than the alpha level of 0.05</p>
+</div>
+</div>
+<div id="multiple-linear-regression-assumptions" class="section level2">
+<h2>Multiple Linear regression Assumptions</h2>
+<ol style="list-style-type: decimal">
+<li>Linearity</li>
+<li>Constant Variance</li>
+<li>Normality</li>
+<li>Independence. From box plots we can see that constant variance and linearity seems to be satisfied. Normality is satisfied by large sample size. there seems to be some correlation between total working years and job level however we see that these two variables are still very effective in the model.</li>
+</ol>
 <pre class="r"><code>CS2$Department &lt;- as.factor(CS2$Department)
 boxplot(CS2$MonthlyIncome~CS2$Department, main=toupper(&quot;MonthlyIncome by Department&quot;), font.main=3, cex.main=1.2, xlab=&quot;Department&quot;, ylab=&quot;MonthlyIncome&quot;, font.lab=3, col=&quot;darkgreen&quot;)</code></pre>
 <p><img src="CaseStudy2_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <pre class="r"><code>boxplot(CS2$MonthlyIncome~CS2$JobLevel, main=toupper(&quot;MonthlyIncome by JobLevel&quot;), font.main=3, cex.main=1.2, xlab=&quot;JobLevel&quot;, ylab=&quot;MonthlyIncome&quot;, font.lab=3, col=&quot;darkgreen&quot;)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-4-2.png" width="672" /> ### Pearson Correlation</p>
 <pre class="r"><code>CS2$Department &lt;- as.numeric(CS2$Department)
 CS2$JobLevel &lt;- as.numeric(CS2$JobLevel)
 a = CS2 %&gt;% dplyr::select(Department, JobLevel,TotalWorkingYears)
@@ -375,6 +384,9 @@ cor(a)</code></pre>
 ## Department         1.00000000 0.1032270       -0.01581234
 ## JobLevel           0.10322699 1.0000000        0.78075235
 ## TotalWorkingYears -0.01581234 0.7807524        1.00000000</code></pre>
+<div id="lack-of-fit-test" class="section level3">
+<h3>Lack of Fit Test</h3>
+<p>A lack of fit test was conducted on the department varaible to check if the linear model well fitted to the seperate means model and it was found to be similar, hence the linear regrssion model is appropriate for this varibable in the model. P value was found to be 0.18 which is higher than the alpha level of 0.05</p>
 <pre class="r"><code>Reduced &lt;- lm(MonthlyIncome ~ Department, data = CS2)
 Full &lt;- lm(MonthlyIncome ~ 0 + as.factor(Department), data = CS2)
 anova (Reduced,Full)</code></pre>
@@ -386,10 +398,6 @@ anova (Reduced,Full)</code></pre>
 ## 1    868 1.8332e+10                           
 ## 2    867 1.8294e+10  1  37799773 1.7914 0.1811</code></pre>
 </div>
-<div id="residual-check" class="section level3">
-<h3>Residual Check</h3>
-<p>Checking the residual plot we can see the residuals are evenly spread, the qq plot shows there is no eveidence against normality, checking the residual plot there is no point that has both high leverage and high influence so there are no outliers, the studentised residuals are also even.</p>
-</div>
 <div id="rmse" class="section level3">
 <h3>RMSE</h3>
 <p>After the analysis we found the RMSE price to be $1371.55</p>
@@ -400,6 +408,22 @@ CS_NS$Department &lt;- as.factor(CS_NS$Department)
 model2 &lt;- lm(MonthlyIncome ~ TotalWorkingYears+Department +JobLevel, data = CS3)
 rmse(CS3$MonthlyIncome, predict(model2, CS3))</code></pre>
 <pre><code>## [1] 1371.554</code></pre>
+</div>
+<div id="residual-check" class="section level3">
+<h3>Residual Check</h3>
+<p>Checking the residual plot we can see the residuals are evenly spread, the qq plot shows there is no eveidence against normality, checking the residual plot there is no point that has both high leverage and high influence so there are no outliers, the studentised residuals are also even.</p>
+<pre class="r"><code>CS2I_pred = predict(model2, interval = &#39;predict&#39;, newdata = CS_NS) 
+CS_NS$Predict_Income &lt;- CS2I_pred[,1]
+
+Predict_Income &lt;- CS_NS %&gt;% dplyr::select(ID,Predict_Income)
+
+par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
+plot(model2)</code></pre>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="multiple-regression-model" class="section level3">
+<h3>Multiple Regression Model</h3>
+<p>The most significant variable for this model was job level followed by total working years, it was found that the sub-level sales in department provided low significance as compared to its relevance to the reference Department Human resources. However the overall model proved to be significant with a p value of &lt;0.0001 and an adjusted R^2 of 0.9105.</p>
 <pre class="r"><code>summary(model2)</code></pre>
 <pre><code>## 
 ## Call:
@@ -423,30 +447,22 @@ rmse(CS3$MonthlyIncome, predict(model2, CS3))</code></pre>
 ## Residual standard error: 1376 on 865 degrees of freedom
 ## Multiple R-squared:  0.9109, Adjusted R-squared:  0.9105 
 ## F-statistic:  2211 on 4 and 865 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>CS2I_pred = predict(model2, interval = &#39;predict&#39;, newdata = CS_NS) 
-CS_NS$Predict_Income &lt;- CS2I_pred[,1]
-
-Predict_Income &lt;- CS_NS %&gt;% dplyr::select(ID,Predict_Income)
-
-par(mfrow = c(2, 2))  # Split the plotting panel into a 2 x 2 grid
-plot(model2)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 <div id="job-role-specific-trends" class="section level3">
 <h3>Job Role specific Trends</h3>
 <p>We can see that it seems sales executives have the best work life balance as they are the highest both in the better and best levels of this category. In the second plot we see that research scientist are the one that work most over time and sales representatives are following closely behind. Once again we see sales executives as the most involved in their jobs as the they are by far the highest in this area. and finally Sales executives are the most satisfied with their jobs with research scientist following closely behind</p>
 <pre class="r"><code>ggplot(CS3, aes(x=WorkLifeBalance,fill=JobRole)) +
   geom_bar(position=&quot;dodge&quot;)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>ggplot(CS, aes(x=OverTime,fill=JobRole)) +
   geom_bar(position=&quot;dodge&quot;)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
 <pre class="r"><code>ggplot(CS, aes(x=JobInvolvement,fill=JobRole)) +
   geom_bar(position=&quot;dodge&quot;)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-3.png" width="672" /></p>
 <pre class="r"><code>ggplot(CS, aes(x=JobSatisfaction,fill=JobRole)) +
   geom_bar(position=&quot;dodge&quot;)</code></pre>
-<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-6-4.png" width="672" /></p>
+<p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-4.png" width="672" /></p>
 </div>
 </div>
 
