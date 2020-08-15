@@ -282,6 +282,9 @@ $(document).ready(function () {
   <a href="BeerCaseStudy.html">CaseStudy1</a>
 </li>
 <li>
+  <a href="CaseStudy2.html">CaseStudy2</a>
+</li>
+<li>
   <a href="App_link.html">App_linkLink</a>
 </li>
       </ul>
@@ -303,49 +306,9 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>#install.packages(&quot;tinytex&quot;)
-#tinytex::install_tinytex()</code></pre>
 <div id="prepare-data" class="section level1">
 <h1>Prepare Data</h1>
 <p>We first prepare data. We import Brew and Breweries data from CSV files and include necessary libraries for our code.</p>
-<pre class="r"><code>library(ggplot2)
-library(tidyr)
-library(plyr)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:plyr&#39;:
-## 
-##     arrange, count, desc, failwith, id, mutate, rename, summarise, summarize</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(class)
-library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre class="r"><code>library(e1071)
-library(RCurl)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;RCurl&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
-## 
-##     complete</code></pre>
-<pre class="r"><code>library(httr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;httr&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:caret&#39;:
-## 
-##     progress</code></pre>
-<pre class="r"><code>library(&quot;RColorBrewer&quot;)
-
-x&lt;-getURL(&#39;https://raw.githubusercontent.com/yuchrishin/DS6306-GroupProject1/master/data/Beers.csv&#39;)
-beers =read.csv(text=x) 
-
-y&lt;- getURL(&#39;https://raw.githubusercontent.com/yuchrishin/DS6306-GroupProject1/master/data/Breweries.csv&#39;)
-breweries = read.csv(text=y) </code></pre>
 </div>
 <div id="number-of-breweries-per-state" class="section level1">
 <h1>Number of Breweries per state</h1>
@@ -360,13 +323,20 @@ breweries %&gt;% arrange() %&gt;% ggplot(aes(x=State, fill = State)) + geom_bar(
 <pre class="r"><code>colnames(beers)[5] = &quot;Brew_ID&quot;
 fullData = merge(beers, breweries, by = &quot;Brew_ID&quot;)
 head(fullData)</code></pre>
-<pre><code>##   Brew_ID        Name.x Beer_ID   ABV IBU                               Style Ounces             Name.y        City State
-## 1       1  Get Together    2692 0.045  50                        American IPA     16 NorthGate Brewing  Minneapolis    MN
-## 2       1 Maggie&#39;s Leap    2691 0.049  26                  Milk / Sweet Stout     16 NorthGate Brewing  Minneapolis    MN
-## 3       1    Wall&#39;s End    2690 0.048  19                   English Brown Ale     16 NorthGate Brewing  Minneapolis    MN
-## 4       1       Pumpion    2689 0.060  38                         Pumpkin Ale     16 NorthGate Brewing  Minneapolis    MN
-## 5       1    Stronghold    2688 0.060  25                     American Porter     16 NorthGate Brewing  Minneapolis    MN
-## 6       1   Parapet ESB    2687 0.056  47 Extra Special / Strong Bitter (ESB)     16 NorthGate Brewing  Minneapolis    MN</code></pre>
+<pre><code>##   Brew_ID        Name.x Beer_ID   ABV IBU                               Style
+## 1       1  Get Together    2692 0.045  50                        American IPA
+## 2       1 Maggie&#39;s Leap    2691 0.049  26                  Milk / Sweet Stout
+## 3       1    Wall&#39;s End    2690 0.048  19                   English Brown Ale
+## 4       1       Pumpion    2689 0.060  38                         Pumpkin Ale
+## 5       1    Stronghold    2688 0.060  25                     American Porter
+## 6       1   Parapet ESB    2687 0.056  47 Extra Special / Strong Bitter (ESB)
+##   Ounces             Name.y        City State
+## 1     16 NorthGate Brewing  Minneapolis    MN
+## 2     16 NorthGate Brewing  Minneapolis    MN
+## 3     16 NorthGate Brewing  Minneapolis    MN
+## 4     16 NorthGate Brewing  Minneapolis    MN
+## 5     16 NorthGate Brewing  Minneapolis    MN
+## 6     16 NorthGate Brewing  Minneapolis    MN</code></pre>
 </div>
 <div id="missing-values" class="section level1">
 <h1>Missing values</h1>
@@ -410,13 +380,13 @@ head(fullData)</code></pre>
   ggplot(aes(State, value, fill = key)) + geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) + ggtitle(&quot;Median IBU for each State&quot;) + theme(axis.text.x = element_text(angle=90, vjust=0.6))</code></pre>
 <pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <p><img src="BeerCaseStudy_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
-<pre class="r"><code>medABV &lt;- cleanData %&gt;% group_by(State) %&gt;% summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n()) %&gt;% arrange(-medianABV)</code></pre>
+<pre class="r"><code>medABV &lt;- cleanData %&gt;% dplyr::group_by(State) %&gt;% summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n()) %&gt;% arrange(-medianABV)</code></pre>
 <pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre class="r"><code>medABV &lt;- medABV %&gt;% select(State, medianABV)
+<pre class="r"><code>medABV &lt;- medABV %&gt;% dplyr::select(State, medianABV)
 
-medIBU &lt;- cleanData %&gt;% group_by(State) %&gt;% summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n()) %&gt;% arrange(-medianIBU)</code></pre>
+medIBU &lt;- cleanData %&gt;% dplyr::group_by(State) %&gt;% summarize(medianABV = median(ABV), medianIBU = median(IBU), count = n()) %&gt;% arrange(-medianIBU)</code></pre>
 <pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre class="r"><code>medIBU &lt;- medIBU %&gt;% select(State, medianIBU)
+<pre class="r"><code>medIBU &lt;- medIBU %&gt;% dplyr::select(State, medianIBU)
 
 head(medABV)</code></pre>
 <pre><code>## # A tibble: 6 x 2
@@ -483,11 +453,15 @@ head(medABV)</code></pre>
 maxIBU = max(cleanData$IBU)
 
 cleanData %&gt;% filter(ABV == maxABV)</code></pre>
-<pre><code>##   Brew_ID         Name.x Beer_ID   ABV IBU              Style Ounces                    Name.y       City State
-## 1       2 London Balling    2685 0.125  80 English Barleywine     16 Against the Grain Brewery Louisville    KY</code></pre>
+<pre><code>##   Brew_ID         Name.x Beer_ID   ABV IBU              Style Ounces
+## 1       2 London Balling    2685 0.125  80 English Barleywine     16
+##                      Name.y       City State
+## 1 Against the Grain Brewery Louisville    KY</code></pre>
 <pre class="r"><code>cleanData %&gt;% filter(IBU == maxIBU)</code></pre>
-<pre><code>##   Brew_ID                    Name.x Beer_ID   ABV IBU                          Style Ounces                  Name.y    City State
-## 1     375 Bitter Bitch Imperial IPA     980 0.082 138 American Double / Imperial IPA     12 Astoria Brewing Company Astoria    OR</code></pre>
+<pre><code>##   Brew_ID                    Name.x Beer_ID   ABV IBU
+## 1     375 Bitter Bitch Imperial IPA     980 0.082 138
+##                            Style Ounces                  Name.y    City State
+## 1 American Double / Imperial IPA     12 Astoria Brewing Company Astoria    OR</code></pre>
 <p>First chart display max ABV and IBU for each state. From the data, we found that London Balling has ABV of 0.125 and it has maximum ABV among all beers. We also found Bitter Bitch Imperial IPA contains IBU of 138 which is the maximum among all beers.</p>
 </div>
 <div id="summarize-abv" class="section level1">
