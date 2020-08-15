@@ -284,7 +284,7 @@ $(document).ready(function () {
   <a href="CaseStudy2.html">CaseStudy2</a>
 </li>
 <li>
-  <a href="App_link.html">App_linkLink</a>
+  <a href="App_link.html">Links</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -451,17 +451,37 @@ plot(model2)</code></pre>
 <div id="job-role-specific-trends" class="section level3">
 <h3>Job Role specific Trends</h3>
 <p>We can see that it seems sales executives have the best work life balance as they are the highest both in the better and best levels of this category. In the second plot we see that research scientist are the one that work most over time and sales representatives are following closely behind. Once again we see sales executives as the most involved in their jobs as the they are by far the highest in this area. and finally Sales executives are the most satisfied with their jobs with research scientist following closely behind</p>
-<pre class="r"><code>ggplot(CS3, aes(x=WorkLifeBalance,fill=JobRole)) +
-  geom_bar(position=&quot;dodge&quot;)</code></pre>
+<pre class="r"><code>W_CS3 &lt;- CS3 %&gt;% 
+ count(JobRole, WorkLifeBalance) %&gt;% 
+ group_by(JobRole) %&gt;% 
+ transmute(WorkLifeBalance, Percentage=n/sum(n)*100)
+
+ggplot(W_CS3, aes(fill=JobRole, y=Percentage, x=WorkLifeBalance)) + 
+    geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;)</code></pre>
 <p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<pre class="r"><code>ggplot(CS, aes(x=OverTime,fill=JobRole)) +
-  geom_bar(position=&quot;dodge&quot;)</code></pre>
+<pre class="r"><code>O_CS3 &lt;- CS3 %&gt;% 
+ count(JobRole, OverTime) %&gt;% 
+ group_by(JobRole) %&gt;% 
+ transmute(OverTime, Percentage=n/sum(n)*100)
+
+ggplot(O_CS3, aes(fill=JobRole, y=Percentage, x=OverTime)) + 
+    geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;)</code></pre>
 <p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
-<pre class="r"><code>ggplot(CS, aes(x=JobInvolvement,fill=JobRole)) +
-  geom_bar(position=&quot;dodge&quot;)</code></pre>
+<pre class="r"><code>J_CS3 &lt;- CS3 %&gt;% 
+ count(JobRole, JobInvolvement) %&gt;% 
+ group_by(JobRole) %&gt;% 
+ transmute(JobInvolvement, Percentage=n/sum(n)*100)
+
+ggplot(J_CS3, aes(fill=JobRole, y=Percentage, x=JobInvolvement)) + 
+    geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;)</code></pre>
 <p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-3.png" width="672" /></p>
-<pre class="r"><code>ggplot(CS, aes(x=JobSatisfaction,fill=JobRole)) +
-  geom_bar(position=&quot;dodge&quot;)</code></pre>
+<pre class="r"><code>B_CS3 &lt;- CS3 %&gt;% 
+ count(JobRole, JobSatisfaction) %&gt;% 
+ group_by(JobRole) %&gt;% 
+ transmute(JobSatisfaction, Percentage=n/sum(n)*100)
+
+ggplot(B_CS3, aes(fill=JobRole, y=Percentage, x=JobSatisfaction)) + 
+    geom_bar(position=&quot;dodge&quot;, stat=&quot;identity&quot;)</code></pre>
 <p><img src="CaseStudy2_files/figure-html/unnamed-chunk-10-4.png" width="672" /></p>
 </div>
 </div>
